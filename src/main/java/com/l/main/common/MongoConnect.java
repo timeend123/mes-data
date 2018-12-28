@@ -122,7 +122,7 @@ public class MongoConnect {
 		MongoClient mongoClient = new MongoClient(addrs,credentials);
 		MongoDatabase mongoDatabase = mongoClient.getDatabase(db_name);
 		MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(MONGO_COLLECTION_NAME);
-		System.out.println(222);
+
 
 		System.out.println("!!!!!!");
 
