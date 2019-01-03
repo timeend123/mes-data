@@ -17,16 +17,16 @@ public class PackageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("text/html;charset=utf-8");
+        //resp.setContentType("text/html;charset=utf-8");
 
-        Weight w = new Weight();
+        /*Weight w = new Weight();
         ShowPackageBoxSum sum = new PackageBoxSum();
 
-        /*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String date = sdf.format(new Date());*/
+        *//*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String date = sdf.format(new Date());*//*
         String date = "2018-11-29";
-        double s = sum.show_packageboxsum(date);
+        double s = sum.show_packageboxsum(date,"");
         PrintWriter out = resp.getWriter();
-        out.print("净重："+s);
+        out.print("净重："+s);*/
     }
 }

@@ -1,7 +1,8 @@
 package com.l.main.board.service;
 
 
+import com.l.main.board.domain.Weight;
 
 public interface ShowPackageBoxSum {
-    double show_packageboxsum(String date);
+    Weight show_PackageBoxSum(String StartDate, String endDate);
 }

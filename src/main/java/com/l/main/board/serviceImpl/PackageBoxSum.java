@@ -1,6 +1,7 @@
 package com.l.main.board.serviceImpl;
 
 
+import com.l.main.board.domain.Weight;
 import com.l.main.board.service.ShowPackageBoxSum;
 
 import com.l.main.unit.LuDiskDemo;
@@ -8,8 +9,7 @@ import com.l.main.unit.LuDiskDemo;
 import org.apache.lucene.document.Document;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.text.DecimalFormat;
 import java.util.List;
 
 
@@ -74,7 +74,7 @@ public class PackageBoxSum implements ShowPackageBoxSum {
         return sum;
     }*/
 
-    public double show_packageboxsum(String date) {
+    public Weight show_PackageBoxSum(String startDate, String endDate) {
 
         //SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         //String today = sdf.format(new Date());
@@ -82,20 +82,47 @@ public class PackageBoxSum implements ShowPackageBoxSum {
 
         //净重总值
         double netWeight = 0.0;
+        //指定时间内的所有记录数量
+        int allDocs = 0;
+        //aa级记录数
+        float aaDocs = 0;
+        //双a率
+        float rate = 0;
+        DecimalFormat df = new DecimalFormat("0.00");
         //创建索引
         try {
-            LuDiskDemo.createIndex();
-            //查找索引文件中属于今天的文档记录
-            List<Document> documents = LuDiskDemo.searchFile(date);
+            LuDiskDemo.createIndex(startDate,endDate);
+            //查找索引文件所有的文档记录,得到净重
+            List<Document> documents = LuDiskDemo.searchFile("");
+            if (documents.size() == 0){
+                Weight w = new Weight();
+                w.setWeight(0);
+                w.setDoubleARate("0");
+                return w;
+            }
+
+            allDocs = documents.size();
+
             for (Document result : documents){
 
                 netWeight += Double.parseDouble(result.get("netWeight"));
 
             }
+
+            //查找结果文档中所有aa等级的记录数
+            List<Document> aaDocuments = LuDiskDemo.searchFile("grade");
+            aaDocs = (float) aaDocuments.size();
+
+            rate = aaDocs/allDocs;
+            //释放资源
+            LuDiskDemo.clearResource();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return netWeight;
+        Weight w = new Weight();
+        w.setWeight(netWeight);
+        w.setDoubleARate(df.format(rate));
+        return w;
     }
 }

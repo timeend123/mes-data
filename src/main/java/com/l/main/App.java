@@ -6,9 +6,7 @@ import com.l.main.board.serviceImpl.PackageBoxSum;
 import com.l.main.common.JavaToJson;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 
 public class App {
     public static void main(String[] args){
@@ -32,8 +30,6 @@ public class App {
             );*/
 
             router.route("/test1").handler(routingContext -> {
-                String param = routingContext.request().getParam("name");
-                System.out.println(param);
                 /*String param = routingContext.request().getParam("name");
                 String param1 = routingContext.request().getParam("idea");
                 HttpServerResponse response  = routingContext.response();
@@ -43,10 +39,16 @@ public class App {
                 //获得前端参数
                 /*String startTime = routingContext.request().getParam("");
                 String endTime = routingContext.request().getParam("");*/
+                /*String startTime = "2018-11-30 0:0:0";
+                String endTime = "2018-11-31 23:00:00";
                 ShowPackageBoxSum sum = new PackageBoxSum();
-                Double result = sum.show_packageboxsum("2018-11-29");
+                Weight w = sum.show_PackageBoxSum(startTime,endTime);*/
+                /*try {
+                    Thread.sleep(6000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
                 Weight w = new Weight();
-                w.setWeight(result);
                 String jsonStr = JavaToJson.jsonStrByJavaBean(w);
                 routingContext.response().setChunked(true).write(jsonStr).end();
 

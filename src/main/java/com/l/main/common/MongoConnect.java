@@ -7,6 +7,8 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
 import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -28,7 +30,7 @@ public class MongoConnect {
 	private static final String MONGO_DB_NAME = "mes-auto";
 	//private static final String MONGO_USERNAME = "mes-auto";
 	//private static final String MONGO_PASSWORD = "mes-auto-mongo@com.hengyi.japp";
-	private static final String MONGO_COLLECTION_NAME = "T_Grade";
+	private static final String MONGO_COLLECTION_NAME = "T_PackageBox";
 
 
 	/*public static void main(String[] args) throws UnknownHostException {
@@ -80,6 +82,7 @@ public class MongoConnect {
 	}*/
 
 	//获取Mongo数据库指定集合所有的数据
+	//连接测试库
 	public static DBCursor getDBCursor(){
 		// 获取Mongo客户端
 		MongoClient mongoClient = null;
@@ -99,12 +102,17 @@ public class MongoConnect {
 		searchObjN.put("$exists",true);
 		BasicDBObject searchObjR = new BasicDBObject();
 		searchObjR.put("netWeight",searchObjN);
+		long s = System.currentTimeMillis();
 		DBCursor cursor = collection.find(searchObjR);
+		long e = System.currentTimeMillis();
+		long r = e-s;
+		System.out.println("databasetime: "+ r);
 		return cursor;
 	}
 
 
-	public static void main(String[] args) throws UnknownHostException {
+	//连接正式库
+	public static MongoCursor<Document> getMongoCursor(String startDate,String endDate) {
 
 		final ServerAddress serverAddress = new ServerAddress("10.2.0.212", 27017);
 		List<ServerAddress> addrs = new ArrayList<>();
@@ -123,7 +131,6 @@ public class MongoConnect {
 		MongoDatabase mongoDatabase = mongoClient.getDatabase(db_name);
 		MongoCollection<Document> mongoCollection = mongoDatabase.getCollection(MONGO_COLLECTION_NAME);
 
-
 		System.out.println("!!!!!!");
 
 
@@ -131,13 +138,30 @@ public class MongoConnect {
 		//long start = System.currentTimeMillis();
 		//MongoCursor cursor = mongoCollection.find().iterator();
 		//MongoCursor<Document> cursor = mongoCollection.find().iterator();
-		MongoCursor<Document> cursor = mongoCollection.find().iterator();
-		int count = 0;
+		//净重不为空
+		/*BasicDBObject searchObjN = new BasicDBObject();
+		searchObjN.put("$ne", null);
+		searchObjN.put("$exists",true);*/
+		//时间范围
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		BasicDBObject searchObjT = new BasicDBObject();
+		try {
+			searchObjT.put("$gte",sdf.parse(startDate));
+			searchObjT.put("$lte",sdf.parse(endDate));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		//总条件对象
+		BasicDBObject searchObjR = new BasicDBObject();
+		searchObjR.put("cdt",searchObjT);
+		MongoCursor<Document> cursor = mongoCollection.find(searchObjR).iterator();
+		/*int count = 0;
 		while (cursor.hasNext()){
 			System.out.println(cursor.next().toJson());
 			count += 1;
 			System.out.println("count: "+ count);
-		}
+		}*/
 		/*int count = 0;
 		if (cursor.hasNext()){
 			Document document = cursor.next();
@@ -146,6 +170,7 @@ public class MongoConnect {
 		double cost = (end - start)/1000;
 		System.out.println("count: "+count+"cost: "+cost);*/
 
+		return cursor;
 	}
 
 }

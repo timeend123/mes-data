@@ -3,7 +3,16 @@ package com.l.main.board.domain;
 public class Weight {
 
     private double weight;
-    private String number;
+    private String doubleARate;
+
+    public String getDoubleARate() {
+        return doubleARate;
+    }
+
+    public void setDoubleARate(String doubleARate) {
+        this.doubleARate = doubleARate;
+    }
+
     public double getWeight() {
         return weight;
     }
@@ -13,12 +22,11 @@ public class Weight {
     }
 
 
-    public String getNumber() {
-        return number;
+    @Override
+    public String toString() {
+        return "Weight{" +
+                "weight=" + weight +
+                ", doubleARate='" + doubleARate + '\'' +
+                '}';
     }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
 }
