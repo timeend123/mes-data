@@ -32,6 +32,8 @@ public class App {
             );*/
 
             router.route("/test1").handler(routingContext -> {
+                String param = routingContext.request().getParam("name");
+                System.out.println(param);
                 /*String param = routingContext.request().getParam("name");
                 String param1 = routingContext.request().getParam("idea");
                 HttpServerResponse response  = routingContext.response();
