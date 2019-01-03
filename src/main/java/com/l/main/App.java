@@ -6,6 +6,7 @@ import com.l.main.board.serviceImpl.PackageBoxSum;
 import com.l.main.common.JavaToJson;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
+import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 
 public class App {
@@ -43,13 +44,14 @@ public class App {
                 String endTime = "2018-11-31 23:00:00";
                 ShowPackageBoxSum sum = new PackageBoxSum();
                 Weight w = sum.show_PackageBoxSum(startTime,endTime);*/
-                /*try {
+                try {
                     Thread.sleep(6000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }*/
+                }
                 Weight w = new Weight();
-                String jsonStr = JavaToJson.jsonStrByJavaBean(w);
+//                String jsonStr = JavaToJson.jsonStrByJavaBean(w);
+                String jsonStr = Json.encode(w);
                 routingContext.response().setChunked(true).write(jsonStr).end();
 
             });
