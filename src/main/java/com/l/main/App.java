@@ -3,65 +3,73 @@ package com.l.main;
 import com.l.main.board.domain.Weight;
 import com.l.main.board.service.ShowPackageBoxSum;
 import com.l.main.board.serviceImpl.PackageBoxSum;
-import com.l.main.common.JavaToJson;
+import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpServer;
-import io.vertx.core.json.Json;
+import io.vertx.core.VertxOptions;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
-public class App {
+public class App extends AbstractVerticle {
     public static void main(String[] args){
-        /*Vertx.vertx().createHttpServer().requestHandler(req -> req.response()
-                .end("<h1>ddddddddddddddd<h1>")).listen(8080);*/
-        //vertx对象
-        Vertx vertx = Vertx.vertx();
-        //创建httpsever
-        HttpServer server = vertx.createHttpServer();
-        //创建路由对象
-        Router router = Router.router(vertx);
-            //不同的请求建立不同的路由
-            /*router.route("/hello")
-                    .handler(RouterContext -> {
-                        HttpServerResponse response = RouterContext.response();
-                        response.setChunked(true);
-                        response.write("<h1>Hello World!!<h1>").end();
-                    });*/
-            /*router.route("/test").handler(req ->
-                req.response().end("test")
-            );*/
 
-            router.route("/test1").handler(routingContext -> {
-                /*String param = routingContext.request().getParam("name");
-                String param1 = routingContext.request().getParam("idea");
-                HttpServerResponse response  = routingContext.response();
-                System.out.println("param: "+param+"param1: "+param1);
-                response.setChunked(true).write("name:" + param + "idea:" + param1).end();*/
 
-                //获得前端参数
-                /*String startTime = routingContext.request().getParam("");
-                String endTime = routingContext.request().getParam("");*/
-                /*String startTime = "2018-11-30 0:0:0";
-                String endTime = "2018-11-31 23:00:00";
-                ShowPackageBoxSum sum = new PackageBoxSum();
-                Weight w = sum.show_PackageBoxSum(startTime,endTime);*/
-                try {
-                    Thread.sleep(6000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Weight w = new Weight();
-//                String jsonStr = JavaToJson.jsonStrByJavaBean(w);
-                String jsonStr = Json.encode(w);
-                routingContext.response().setChunked(true).write(jsonStr).end();
+        //设置主线程阻塞时间
+        VertxOptions vertxOptions = new VertxOptions();
+        vertxOptions.setBlockedThreadCheckInterval(9999999);
+        vertxOptions.setWorkerPoolSize(100);
+        Vertx vertx = Vertx.vertx(vertxOptions);
 
-            });
+        vertx.deployVerticle(new App());
 
-            //router.route("/todo").handler(req -> req.response().end("<h1>do something!!!<h1>"));
-            //将请求交给路由处理
-            server.requestHandler(router::accept);
-            //服务器监听端口
-            server.listen(8080);
 
     }
+
+    //部署服务
+    @Override
+    public void start() {
+
+        //实例化一个路由，用来路由不同的接口
+        Router router = Router.router(vertx);
+
+        //增加一个处理器，将请求的上下文信息放入RoutingContext对象中
+        router.route().handler(BodyHandler.create());
+
+
+
+        //处理post方法的路由
+        router.post("/getData").handler(this::handlePost);
+
+        //创建httpserver，分发路由，监听8080端口
+        vertx.createHttpServer().requestHandler(router::accept).listen(8080);
+    }
+
+    private void handlePost(RoutingContext routingContext){
+        JsonObject j1 =routingContext.getBodyAsJson();
+        String startTime = j1.getString("startTime");
+        String endTime = j1.getString("endTime");
+
+        if (isBlank(startTime) || isBlank(endTime)){
+            routingContext.response().setStatusCode(400).end();
+        }
+
+        ShowPackageBoxSum s = new PackageBoxSum();
+        Weight w = s.show_PackageBoxSum(startTime,endTime);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.put("净重",w.getWeight()).put("双a率",w.getDoubleARate());
+        routingContext.response().putHeader("content-type","application/json")
+                .end(jsonObject.encodePrettily());
+
+    }
+
+    private boolean isBlank(String str){
+
+        if (str == null || "".equals(str)){
+            return true;
+        }
+        return false;
+    }
+
 }
 

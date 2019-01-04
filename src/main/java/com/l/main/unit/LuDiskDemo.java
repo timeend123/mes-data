@@ -105,16 +105,13 @@ public class LuDiskDemo {
         try {
                 //打开索引目录
                 //ramDirectory = new RAMDirectory();
-                System.out.println("1");
                 ramReader = IndexReader.open(ramDirectory);
-                System.out.println("2");
                 //根据Indexreader获得IndexSearcher对象
                 IndexSearcher searcher = new IndexSearcher(ramReader);
-                System.out.println("3");
                 //创建搜素条件对象Query
                 //创建parser  确定搜索文件的内容，就是搜索文件的哪一部分
                 /*QueryParser parser = new QueryParser(Version.LUCENE_45, "cdt", new StandardAnalyzer(Version.LUCENE_45));
-                System.out.println("4");
+
                 //创建Query
 
                  Query query = parser.parse(text);*/
@@ -127,10 +124,8 @@ public class LuDiskDemo {
                     query = parser.parse("1770980569354600486");
                 }
 
-                 System.out.println("5");
                  //根据search，搜索返回TopDose ,10表示查询10条
                  TopDocs docs = searcher.search(query, 100000);
-                 System.out.println("6");
                  System.out.println("docs:" + docs.totalHits);
                  ScoreDoc[] s = docs.scoreDocs;
                  //根据TopDocs，获取SocreDoc
