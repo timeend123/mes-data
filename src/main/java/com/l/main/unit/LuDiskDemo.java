@@ -42,8 +42,10 @@ public class LuDiskDemo {
         long s = System.currentTimeMillis();
         try {
             ramDirectory = new RAMDirectory();
+
             IndexWriterConfig indexWriterConfig = new IndexWriterConfig(Version.LUCENE_45,new StandardAnalyzer(Version.LUCENE_45));
             indexWriterConfig.setIndexDeletionPolicy(new KeepOnlyLastCommitDeletionPolicy());
+            indexWriterConfig.setRAMBufferSizeMB(5120).setMaxBufferedDocs(360000);
 
             ramWriter = new IndexWriter(ramDirectory,indexWriterConfig);
             //获得mongo数据库指定集合中的数据
@@ -56,11 +58,12 @@ public class LuDiskDemo {
             long et = System.currentTimeMillis();
             System.out.println("databasecost: "+(et-st));
 
-            Document document = new Document();
+            //Document document = new Document();
+            List<Document> ds = new ArrayList<>();
             if (dbCursor.hasNext()) {
                 while (dbCursor.hasNext()) {
 
-
+                    Document document = new Document();
                     org.bson.Document docObject = dbCursor.next();
                     //System.out.println("cdt:"+sdf.format(dbObject.get("cdt")));
                     //添加索引，文档id储存
@@ -75,16 +78,22 @@ public class LuDiskDemo {
                     //文档内容
                     //document.add(new TextField("content",content,Field.Store.YES));
                     //添加文档到索引中
-                    ramWriter.addDocument(document);
+
+                    ds.add(document);
+
+                    /*ramWriter.addDocument(document);
                     ramWriter.commit();
                     storeCount += 1;
                     document.removeField("_id");
                     document.removeField("netWeight");
                     document.removeField("grade");
-                    document.removeField("content");
+                    document.removeField("content");*/
 
+                    storeCount += 1;
                 }
             }
+            ramWriter.addDocuments(ds);
+            ramWriter.commit();
             long e = System.currentTimeMillis();
             System.out.println("制作索引时间："+(e-s));
             System.out.println("索引文档内容数量："+storeCount+"条");
